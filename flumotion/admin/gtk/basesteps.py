@@ -31,6 +31,14 @@ class AudioProducerStep(WorkerWizardStep):
         self.model = model
         WorkerWizardStep.__init__(self, wizard)
 
+    # WizardStep
+
+    def getNext(self):
+        if self.model.isEncoded:
+            from flumotion.admin.gtk.decoderstep import GenericDecoderStep
+            return GenericDecoderStep(self.wizard, self.model)
+        return None
+
 
 class VideoProducerStep(WorkerWizardStep):
     section = _('Production')
@@ -43,8 +51,12 @@ class VideoProducerStep(WorkerWizardStep):
     # WizardStep
 
     def getNext(self):
-        from flumotion.admin.gtk.overlaystep import OverlayStep
-        return OverlayStep(self.wizard, self.model)
+        if self.model.isEncoded:
+            from flumotion.admin.gtk.decoderstep import GenericDecoderStep
+            return GenericDecoderStep(self.wizard, self.model)
+        else:
+            from flumotion.admin.gtk.overlaystep import OverlayStep
+            return OverlayStep(self.wizard, self.model)
 
 
 class VideoEncoderStep(WorkerWizardStep):

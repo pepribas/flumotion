@@ -49,6 +49,18 @@ class IProducerPlugin(Interface):
         """
 
 
+class IDecoderPlugin(Interface):
+
+    def __call__(assistant):
+        """Creates producer plugins
+        @param assistant: the assistant
+        @type assistant: L{ConfigurationAssistant}
+        """
+
+    def getDecodingStep(type):
+        pass
+
+
 class IEncoderPlugin(Interface):
     """An encoder plugin is how you extend the encoding assistant page.
     The main purpose of the plugin is to get a assistant step specific

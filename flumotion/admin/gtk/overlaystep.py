@@ -93,7 +93,6 @@ class OverlayStep(WorkerWizardStep):
     def getNext(self):
         if self.wizard.getScenario().hasAudio(self.wizard):
             return self.wizard.getStep('Production').getAudioStep()
-
         return None
 
     # Private API

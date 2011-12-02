@@ -233,6 +233,7 @@ class Plug(object):
 class Producer(Component):
     """I am a component which produces data.
     """
+    isEncoded = False
 
     def validate(self):
         super(Producer, self).validate()
@@ -258,6 +259,24 @@ class Producer(Component):
             else:
                 properties['framerate'] = "%d/%d" % framerate
         return properties
+
+
+class Decoder(Component):
+    """I am a component which dencodes data
+    """
+
+    def validate(self):
+        super(Decoder, self).validate()
+
+        if not self.eaters:
+            raise ComponentValidationError(
+                "decoder component %s must have at least one eater" %
+                (self.name, ))
+
+        if not self.feeders:
+            log.debug("component-validation",
+                      "decoder component %s doesn't have any feeder" %
+                      (self.name, ))
 
 
 class Encoder(Component):

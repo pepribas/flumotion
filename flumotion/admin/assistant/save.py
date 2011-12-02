@@ -20,7 +20,7 @@ import re
 
 from flumotion.admin.assistant.configurationwriter import ConfigurationWriter
 from flumotion.admin.assistant.models import Muxer, AudioProducer, \
-     VideoProducer, AudioEncoder, VideoEncoder
+     VideoProducer, AudioEncoder, VideoEncoder, Decoder
 
 _ = gettext.gettext
 __version__ = "$Rev$"
@@ -40,6 +40,8 @@ class AssistantSaver(object):
         self._flowName = None
         self._audioProducer = None
         self._videoProducer = None
+        self._audioDecoder = None
+        self._videoDecoder = None
         self._audioEncoder = None
         self._videoEncoder = None
         self._videoOverlay = None
@@ -80,6 +82,30 @@ class AssistantSaver(object):
                 "videoProducer must be a VideoProducer subclass, not %r" % (
                 videoProducer, ))
         self._videoProducer = videoProducer
+
+    def setVideoDecoder(self, decoder):
+        """Attach a decoder component for this flow
+        @param decoder: decoder
+        @type decoder: L{Decoder} subclass or None
+        """
+        if (decoder is not None and
+            not isinstance(decoder, Decoder)):
+            raise TypeError(
+                "decoder must be a Decoder subclass, not %r" % (
+                decoder, ))
+        self._videoDecoder = decoder
+
+    def setAudioDecoder(self, decoder):
+        """Attach a decoder component for this flow
+        @param decoder: decoder
+        @type decoder: L{Decoder} subclass or None
+        """
+        if (decoder is not None and
+            not isinstance(decoder, Decoder)):
+            raise TypeError(
+                "decoder must be a Decoder subclass, not %r" % (
+                decoder, ))
+        self._audioDecoder = decoder
 
     def setVideoOverlay(self, videoOverlay):
         if not self._videoProducer:
@@ -262,7 +288,13 @@ class AssistantSaver(object):
         self._audioEncoder.name = 'encoder-audio'
         self._flowComponents.append(self._audioEncoder)
 
-        self._audioProducer.link(self._audioEncoder)
+        if not self._audioDecoder:
+            self._audioProducer.link(self._audioEncoder)
+        else:
+            self._audioDecoder.name = 'decoder-audio'
+            self._flowComponents.append(self._audioDecoder)
+            self._audioProducer.link(self._audioDecoder)
+            self._audioDecoder.link(self._audioEncoder)
 
     def _handleVideoProducer(self):
         if not self._videoProducer:
@@ -279,15 +311,22 @@ class AssistantSaver(object):
         self._videoEncoder.name = 'encoder-video'
         self._flowComponents.append(self._videoEncoder)
 
-        self._videoProducer.link(self._videoEncoder)
+        if not self._videoDecoder:
+            self._videoProducer.link(self._videoEncoder)
+        else:
+            self._videoDecoder.name = 'decoder-video'
+            self._flowComponents.append(self._videoDecoder)
+            self._videoProducer.link(self._videoDecoder)
+            self._videoDecoder.link(self._videoEncoder)
 
     def _handleVideoOverlay(self):
         if not self._videoOverlay:
             return
 
-        self._videoProducer.unlink(self._videoEncoder)
+        producer = self._videoDecoder or self._videoProducer
+        producer.unlink(self._videoEncoder)
 
-        self._videoProducer.link(self._videoOverlay)
+        producer.link(self._videoOverlay)
         self._videoOverlay.link(self._videoEncoder)
         self._flowComponents.append(self._videoOverlay)
 
@@ -319,6 +358,9 @@ class AssistantSaver(object):
             if not video.exists:
                 self._videoProducer.name = 'producer-audio-video'
             self._audioProducer = self._videoProducer
+            if self._videoDecoder:
+                self._videoDecoder.name = 'decoder-audio-video'
+                self._audioDecoder = self._videoDecoder
 
     def _handleMuxers(self):
         for muxerName, components in [('audio', [self._audioEncoder]),

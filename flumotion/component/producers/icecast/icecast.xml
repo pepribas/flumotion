@@ -10,7 +10,12 @@
       <entries>
         <entry type="component" location="icecast.py"
                function="Icecast" />
-      </entries>
+         <entry type="wizard" location="wizard_gtk.py"
+               function="IcecastWizardPlugin" />
+     </entries>
+
+     <wizard type="audio-producer" _description="Icecast producer"
+              feeder="default" />
 
       <sockets>
         <socket type="flumotion.component.plugs.tagger.TaggerPlug" />
@@ -48,6 +53,20 @@
         <directories>
             <directory name="flumotion/component/producers/icecast">
                 <filename location="icecast.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+    <bundle name="icecast-wizard">
+        <dependencies>
+            <dependency name="icecast-base" />
+            <dependency name="component" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/producers/icecast">
+                <filename location="wizard.glade" />
+                <filename location="wizard_gtk.py" />
             </directory>
         </directories>
     </bundle>

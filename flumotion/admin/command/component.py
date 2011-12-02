@@ -438,5 +438,6 @@ class Component(util.LogCommand):
                     host = w.get('host')
                     break
             moodName = planet.moods.get(c.get('mood')).name
-            comps.append((c.get('name'), c.get('type'), host, moodName))
+            comps.append((c.get('name'), c.get('type'), host, moodName,
+                          workerName))
         self.pprint(comps)

@@ -82,6 +82,11 @@ class LiveAssistantPlugin(object):
                 overlayStep = wizard.getStep('Overlay')
                 saver.setVideoOverlay(overlayStep.getOverlay())
 
+        if productionStep and productionStep.hasAudio():
+            if wizard.hasStep('AudioDecoder'):
+                decoderStep = wizard.getStep('AudioDecoder')
+                saver.setAudioDecoder(decoderStep.getDecoder())
+
         encodingStep = wizard.getStep('Encoding')
         saver.setAudioEncoder(self.getAudioEncoder())
         saver.setVideoEncoder(self.getVideoEncoder())
