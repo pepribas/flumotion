@@ -4,7 +4,9 @@ fgdpdir = $(libdir)/flumotion/python/flumotion/component/producers/fgdp
 
 fgdp_PYTHON = \
 	__init__.py 	\
-	fgdp.py
+	fgdp.py \
+	wizard.glade \
+	wizard_gtk.py
 
 fgdp_DATA = fgdp.xml
 
